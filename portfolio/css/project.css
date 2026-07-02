@@ -1,0 +1,104 @@
+/* ============================================================
+   PROJECT — single project detail page
+   ============================================================ */
+
+.project-detail { padding-bottom: clamp(3rem, 8vw, 6rem); }
+
+/* Back link — sits under the nav, above the title */
+.project-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: calc(var(--nav-h) + clamp(1.4rem, 4vw, 2.4rem)) var(--gutter) 0;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color var(--t-fast) var(--ease);
+}
+.project-back:hover { color: var(--ink); }
+.project-back .arrow {
+  color: var(--cobalt);
+  transition: transform var(--t-fast) var(--ease);
+}
+.project-back:hover .arrow { transform: translateX(-0.3em); }
+
+/* Collapse the default page-head top padding — the back link owns the offset */
+.project-head-single { padding-top: clamp(1rem, 3vw, 1.6rem); }
+
+/* ---------- Hero ---------- */
+.project-hero {
+  margin: 0 var(--gutter);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--tint);
+  border: 1px solid var(--line);
+}
+.project-hero img,
+.project-hero video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---------- Body: meta + description ---------- */
+.project-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: clamp(1.5rem, 5vw, 4rem);
+  padding: clamp(2rem, 5vw, 3.5rem) var(--gutter);
+}
+
+.project-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+.project-meta-item .kicker { display: block; margin-bottom: 0.35rem; }
+.project-meta-item p {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 460;
+  letter-spacing: -0.01em;
+}
+
+.project-lead {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: 420;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  max-width: 40ch;
+}
+
+/* ---------- Prev / next pager ---------- */
+.project-pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid var(--line);
+  margin: 0 var(--gutter);
+  padding-top: clamp(1.6rem, 4vw, 2.4rem);
+}
+.project-pager-link[hidden] { display: none; }
+.project-pager-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.project-pager-link.is-next { text-align: right; margin-left: auto; }
+.project-pager-title {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 460;
+  letter-spacing: -0.01em;
+  transition: color var(--t-fast) var(--ease);
+}
+.project-pager-link:hover .project-pager-title { color: var(--cobalt); }
+
+@media (max-width: 640px) {
+  .project-hero { aspect-ratio: 4 / 3; }
+  .project-body { grid-template-columns: 1fr; }
+  .project-meta { flex-direction: row; gap: 2rem; }
+}

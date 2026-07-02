@@ -14,11 +14,11 @@
 (function () {
   "use strict";
 
-  /* ---------- Shapes ---------- 
-     Kept deliberately simple & bold. To add/remove, edit this list
-     and add a matching `case` in shapeSVG() and drawShape() (home.js). */
-  const SHAPES = ["circle", "ring", "square", "triangle", "pill", "arc",
-                  "diamond", "pentagon", "hexagon", "cross", "quarter", "chevron"];
+  /* ---------- Shapes ----------
+     A tight, bold set — fewer forms, used in greater quantity, reads as
+     one cohesive language. To add/remove, edit this list (shapeSVG() and
+     drawShape() in home.js still know how to draw the wider set). */
+  const SHAPES = ["circle", "ring", "square", "triangle", "arc"];
 
   // Fixed poster aspect (widescreen, like the hero). viewBox uses these.
   const RATIO_W = 1600, RATIO_H = 900;
@@ -50,14 +50,16 @@
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
   function randomPoster(n) {
-    const count = n || Math.round(rand(5, 8));
+    const count = n || Math.round(rand(10, 15));
     const shapes = [];
     for (let i = 0; i < count; i++) {
       shapes.push({
         type: pick(SHAPES),
-        x: rand(0.1, 0.9),
-        y: rand(0.14, 0.86),
-        size: rand(0.07, 0.18),
+        // Span the whole canvas — big shapes bleed off the edges on purpose,
+        // so a shuffle is never boxed-in and always reads as a full composition.
+        x: rand(0.0, 1.0),
+        y: rand(0.04, 0.96),
+        size: rand(0.06, 0.24),
         rot: rand(0, 360),
         color: weightedColor(),
       });

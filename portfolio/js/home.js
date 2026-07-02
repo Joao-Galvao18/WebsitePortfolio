@@ -6,6 +6,10 @@
   "use strict";
   const { clamp, lerp, reduced } = window.GG;
 
+  // On the hero the custom cursor tracks the pointer 1:1 (no smoothing) so the
+  // shapes are easy to grab and place precisely. Other pages keep the easing.
+  GG.cursorEase = 1;
+
   /* ============================================================
      1. HERO — poster editor
         · Shuffle: new random shapes/colors/positions
@@ -17,6 +21,7 @@
   if (posterEl && window.Poster) {
     let poster = window.Poster.random();       // array of shape data
     let selected = null;                        // currently selected shape index
+    let topZ = 0;                               // rising stack — grabbed shape goes on top
 
     // ---- Render the editable shapes as absolutely positioned SVG nodes ----
     function render() {
@@ -25,12 +30,14 @@
         const node = document.createElement("div");
         node.className = "shape";
         node.dataset.i = i;
+        node._lift = 1;   // grab/drop scale, folded into the transform by place()
         node.tabIndex = 0;
         node.setAttribute("role", "button");
         node.setAttribute("aria-label", `Shape ${i + 1}: ${s.type}`);
         posterEl.appendChild(node);
         drawShape(node, s);
       });
+      topZ = poster.length;
       positionAll();
       if (selected != null) selectShape(selected);
     }
@@ -73,10 +80,28 @@
     function place(node, s) {
       const w = posterEl.clientWidth, h = posterEl.clientHeight;
       const px = Math.min(w, h) * s.size * 2; // shape box size in px
+      const lift = node._lift || 1;           // grab/drop lift scale
       node.style.width = px + "px";
       node.style.height = px + "px";
       node.style.transform =
-        `translate(${(s.x * w - px / 2).toFixed(1)}px, ${(s.y * h - px / 2).toFixed(1)}px) rotate(${s.rot}deg)`;
+        `translate(${(s.x * w - px / 2).toFixed(1)}px, ${(s.y * h - px / 2).toFixed(1)}px) rotate(${s.rot}deg) scale(${lift})`;
+    }
+
+    // Grab lifts the shape (scales it up); drop settles it back with a bounce.
+    function liftNode(node, up) {
+      if (!node) return;
+      if (reduced || !window.gsap) {
+        node._lift = up ? 1.08 : 1;
+        place(node, poster[+node.dataset.i]);
+        return;
+      }
+      gsap.to(node, {
+        _lift: up ? 1.08 : 1,
+        duration: up ? 0.18 : 0.45,
+        ease: up ? "power2.out" : "back.out(2.2)",
+        overwrite: true,
+        onUpdate: () => place(node, poster[+node.dataset.i]),
+      });
     }
     function positionAll() {
       [...posterEl.children].forEach((node) => place(node, poster[+node.dataset.i]));
@@ -133,7 +158,9 @@
         sx = cur.x * w - e.clientX;
         sy = cur.y * h - e.clientY;
       }
-      node.style.zIndex = String(1000);
+      node.style.zIndex = String(++topZ);   // always float above the rest
+      node.classList.add("is-grabbing");
+      liftNode(node, true);
       posterEl.setPointerCapture(e.pointerId);
     });
 
@@ -149,12 +176,17 @@
         cur.rot = startRot + (a - startAng);
       } else if (mode === "scale") {
         const d = Math.hypot(e.clientX - cx, e.clientY - cy);
-        cur.size = clamp(startSize * (d / Math.max(startDist, 1)), 0.03, 0.34);
+        // No upper bound — shapes scale infinitely; tiny floor keeps them grabbable.
+        cur.size = Math.max(0.01, startSize * (d / Math.max(startDist, 1)));
       }
       place(curNode, cur);
     });
 
     function endInteraction() {
+      if (curNode) {
+        curNode.classList.remove("is-grabbing");
+        liftNode(curNode, false);
+      }
       mode = null; cur = null; curNode = null;
     }
     posterEl.addEventListener("pointerup", endInteraction);
@@ -170,8 +202,8 @@
       else if (e.key === "ArrowUp") s.y = clamp(s.y - step, 0.02, 0.98);
       else if (e.key === "ArrowDown") s.y = clamp(s.y + step, 0.02, 0.98);
       else if (e.key === "r") s.rot += 15;
-      else if (e.key === "+" || e.key === "=") s.size = clamp(s.size + 0.02, 0.03, 0.34);
-      else if (e.key === "-") s.size = clamp(s.size - 0.02, 0.03, 0.34);
+      else if (e.key === "+" || e.key === "=") s.size = Math.max(0.01, s.size + 0.02);
+      else if (e.key === "-") s.size = Math.max(0.01, s.size - 0.02);
       else return;
       e.preventDefault();
       place(posterEl.children[selected], s);
@@ -272,6 +304,39 @@
     if (submitBtn) submitBtn.addEventListener("click", submit);
     nameInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
   }
+
+  /* ============================================================
+     1b. HERO WORDMARK — hover cycles each letter through typefaces
+         On hover the letters flow through a set of contrasting fonts
+         (serif · grotesque · mono · geometric) as a staggered wave;
+         on leave they settle back to the base serif.
+     ============================================================ */
+  (function () {
+    const word = document.querySelector(".hero-word");
+    if (!word) return;
+    const letters = [...word.querySelectorAll(".hero-letter")];
+    const FONTS = [
+      '"Fraunces", serif',
+      '"Bricolage Grotesque", sans-serif',
+      '"Fragment Mono", monospace',
+      '"Syne", sans-serif',
+    ];
+    let timer = 0, tick = 0;
+    function start() {
+      if (timer || reduced) return;
+      tick = 0;
+      timer = setInterval(() => {
+        tick++;
+        letters.forEach((l, i) => { l.style.fontFamily = FONTS[(tick + i) % FONTS.length]; });
+      }, 140);
+    }
+    function stop() {
+      clearInterval(timer); timer = 0;
+      letters.forEach((l) => { l.style.fontFamily = ""; });
+    }
+    word.addEventListener("pointerenter", start);
+    word.addEventListener("pointerleave", stop);
+  })();
 
   /* ============================================================
      2. FEATURED CAROUSEL — drag with momentum, velocity skew,

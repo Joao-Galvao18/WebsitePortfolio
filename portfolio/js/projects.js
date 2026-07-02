@@ -23,8 +23,8 @@
   list.innerHTML = data
     .map(
       (p) => `
-    <li class="project-row" data-category="${p.category}" tabindex="0"
-        data-image="${p.image}" aria-label="${p.title}, ${p.category}, ${p.year}">
+    <li class="project-row" data-category="${p.category}" data-slug="${p.slug}" tabindex="0"
+        role="link" data-image="${p.image}" aria-label="${p.title}, ${p.category}, ${p.year} — view project">
       ${GG.media(p, { className: "row-thumb", attrs: 'loading="lazy"' })}
       <h2 class="row-title">${p.title}</h2>
       <span class="row-cat" data-cat="${p.category}">${GG.t("filter." + p.category)}</span>
@@ -38,6 +38,10 @@
   rows.forEach((r, i) => {
     r.style.transitionDelay = `${(i % 6) * 0.05}s`;
     GG.observe(r);
+    r.addEventListener("click", () => openProject(r.dataset.slug));
+    r.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openProject(r.dataset.slug); }
+    });
   });
 
   /* ============================================================
@@ -187,10 +191,9 @@
     if (el) openProject(el.dataset.slug);
   });
 
-  function openProject() {
-    // Single project pages aren't built yet → go to the list index.
-    // When you add e.g. project.html?slug=…, change this line.
-    window.location.href = "projects.html";
+  function openProject(slug) {
+    if (!slug) return;
+    window.location.href = `project.html?slug=${encodeURIComponent(slug)}`;
   }
 
   /* ---------- Physics loop ---------- */
@@ -303,6 +306,16 @@
      ============================================================ */
   if (toggle) {
     const btns = [...toggle.querySelectorAll(".toggle-btn")];
+
+    // On mobile the drag canvas is fiddly — default to the List view instead.
+    if (window.matchMedia("(max-width: 640px)").matches) {
+      toggle.dataset.view = "list";
+      btns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === "list")));
+      canvas.hidden = true;
+      list.hidden = false;
+      running = false;
+    }
+
     function setView(view) {
       if (toggle.dataset.view === view) return;
       toggle.dataset.view = view;

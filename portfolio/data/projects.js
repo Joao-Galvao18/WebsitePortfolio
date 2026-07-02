@@ -99,6 +99,13 @@ window.PORTFOLIO = {
     "filter.Identity":    { en: "Identity", pt: "Identidade" },
     "row.view":   { en: "View project", pt: "Ver projeto" },
 
+    "project.back":     { en: "All projects", pt: "Todos os projetos" },
+    "project.year":     { en: "Year", pt: "Ano" },
+    "project.category": { en: "Category", pt: "Categoria" },
+    "project.prev":     { en: "Previous", pt: "Anterior" },
+    "project.next":     { en: "Next", pt: "Seguinte" },
+    "project.notfound": { en: "That project doesn't exist.", pt: "Esse projeto não existe." },
+
     "gallery.kicker": { en: "Photography & studies", pt: "Fotografia e estudos" },
     "gallery.title":  { en: "Gallery", pt: "Galeria" },
     "gallery.canvas": { en: "Canvas", pt: "Tela" },

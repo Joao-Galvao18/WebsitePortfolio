@@ -312,6 +312,7 @@
   const PAGES = {
     "index.html":    { key: "nav.index" },
     "projects.html": { key: "nav.projects" },
+    "project.html":  { key: "nav.projects" },
     "gallery.html":  { key: "nav.gallery" },
     "about.html":    { key: "nav.about" },
     "work.html":     { key: "nav.work" },
@@ -323,10 +324,14 @@
   // Returns { els, poster } so the leave + next-page arrive can share it.
   function buildVeil(poster) {
     if (!veil) return { els: [], poster: [] };
-    const shapes = poster || (window.Poster ? window.Poster.random(9) : []);
+    // Reuse a carried composition exactly (so leave→arrive line up), else
+    // generate a fresh non-overlapping, fully-visible scatter.
+    const shapes = poster || layoutVeilShapes(13);
     const svgs = shapes.map((s) => {
-      const size = 60 + s.size * 380; // px
-      const left = s.x * 100, top = s.y * 100;
+      // _v* fields come from layoutVeilShapes; fall back for any old data.
+      const size = s._vsize != null ? s._vsize : 60 + s.size * 380; // px
+      const left = (s._vx != null ? s._vx : s.x) * 100;
+      const top  = (s._vy != null ? s._vy : s.y) * 100;
       const inner = window.Poster ? window.Poster.shapeSVG(
         { ...s, x: 0.5, y: 0.5, size: 0.42 }, 100, 100
       ) : "";
@@ -338,6 +343,45 @@
       `<div class="veil-shapes">${svgs}</div>` +
       '<div class="veil-label" aria-hidden="true"><span></span></div>';
     return { els: [...veil.querySelectorAll(".veil-shape")], poster: shapes };
+  }
+
+  // Scatter shapes for the transition: big, but always fully inside the
+  // viewport (a margin keeps them off the edges → never clipped at corners)
+  // and never touching (a gap separates them; a crowded shape shrinks to fit).
+  function layoutVeilShapes(count) {
+    const vrand = (a, b) => a + Math.random() * (b - a);
+    const base = window.Poster ? window.Poster.random(count) : [];
+    const W = window.innerWidth || 1280;
+    const H = window.innerHeight || 800;
+    const minDim = Math.min(W, H);
+    const margin = Math.max(18, minDim * 0.035);
+    const gap    = Math.max(12, minDim * 0.025);
+    const floor  = 0.07 * minDim;
+    const placed = [];
+    base.forEach((s) => {
+      let size = vrand(0.16, 0.30) * minDim;   // bigger than the old 60–150px
+      let spot = null;
+      while (!spot && size >= floor) {
+        const r = size / 2;
+        const minX = margin + r, maxX = W - margin - r;
+        const minY = margin + r, maxY = H - margin - r;
+        if (maxX > minX && maxY > minY) {
+          for (let t = 0; t < 60; t++) {
+            const cx = vrand(minX, maxX), cy = vrand(minY, maxY);
+            if (placed.every((o) => Math.hypot(o.cx - cx, o.cy - cy) >= o.r + r + gap)) {
+              spot = { cx, cy, r }; break;
+            }
+          }
+        }
+        if (!spot) size *= 0.85;   // too crowded — shrink and retry
+      }
+      if (!spot) return;           // couldn't fit even at the floor (rare)
+      placed.push(spot);
+      s._vx = spot.cx / W;
+      s._vy = spot.cy / H;
+      s._vsize = size;
+    });
+    return base.filter((s) => s._vsize != null);
   }
 
   // Hand-off store so the SAME shapes that flew in on leave fly out on arrive
@@ -531,8 +575,10 @@
     });
 
     (function follow() {
-      cx = GG.lerp(cx, mx, 0.22);
-      cy = GG.lerp(cy, my, 0.22);
+      // Pages can set GG.cursorEase = 1 for a 1:1 (unsmoothed) cursor.
+      const k = GG.cursorEase != null ? GG.cursorEase : 0.22;
+      cx = GG.lerp(cx, mx, k);
+      cy = GG.lerp(cy, my, k);
       cursor.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
       requestAnimationFrame(follow);
     })();

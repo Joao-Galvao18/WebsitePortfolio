@@ -71,26 +71,41 @@
   .handle { width: 18px; height: 18px; }
 }
 
-/* discreet signature */
+/* Big serif wordmark across the bottom of the hero */
 .hero-name-mini {
   position: relative;
   z-index: 1;
-  margin-top: auto;
-  font-family: var(--font-mono);
-  font-size: var(--step--1);
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--muted);
-  display: flex;
-  gap: 0.6rem;
+  margin-top: auto;          /* pushes the wordmark to the bottom of the hero */
+  margin-bottom: -0.04em;
+  width: 100%;
   pointer-events: none;
 }
-.hero-name-mini span:last-child { color: var(--cobalt); }
+
+/* Equal-width letter columns → always fills the full width, and font swaps
+   on hover never nudge the layout. */
+.hero-word {
+  display: flex;
+  align-items: baseline;
+  width: 100%;
+  font-family: "Fraunces", var(--font-display);
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-size: clamp(1.7rem, 6.5vw, 5.5rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+  color: var(--muted);
+  pointer-events: auto;      /* so hover can drive the typeface swap */
+}
+.hero-letter {
+  flex: 1 1 0;
+  text-align: center;
+  transition: opacity var(--t-fast) var(--ease-out);
+}
 
 .hero-foot {
   position: relative;
   z-index: 1;
-  margin-top: 0.8rem;
+  margin-top: 0.25rem;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
@@ -113,21 +128,20 @@
 .poster-ui {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 0.7rem;
 }
 
 .poster-hint {
   font-family: var(--font-mono);
-  font-size: var(--step--1);
+  font-size: clamp(0.44rem, 1.5vw, 0.66rem);
   color: var(--muted);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  text-align: right;
-  max-width: 30ch;
+  gap: 0.45rem;
+  white-space: nowrap;
 }
 .poster-hint .dot {
   width: 8px; height: 8px; border-radius: 50%;

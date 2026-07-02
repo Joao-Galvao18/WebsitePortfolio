@@ -137,8 +137,12 @@
   text-transform: uppercase;
 }
 
-@media (max-width: 560px) {
-  .folder { width: 132px; }
+@media (max-width: 640px) {
+  .folder { width: 104px; }
+  .folder-label { margin-top: 0.4rem; }
+  .folder-label strong { font-size: var(--step--1); }
+  .folder-label span { font-size: 0.6rem; }
+  .folder-icon .tab-dot { width: 5px; height: 5px; }
 }
 
 .filters {
@@ -193,6 +197,7 @@
 }
 .project-row.in-view { opacity: 1; transform: none; }
 .project-row.is-hidden { display: none; }
+.project-row { cursor: pointer; }
 
 .project-row::before {
   content: "";
