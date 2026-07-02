@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>(function(){try{var t=localStorage.getItem('gg-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About — Guilherme Galvão</title>
+  <meta name="description" content="About Guilherme Galvão — Portuguese designer and photographer. Services, background and contact.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Fragment+Mono&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/about.css">
+  <noscript><style>.veil{display:none}.hero-letter{transform:none!important}</style></noscript>
+</head>
+<body>
+
+  <!-- Page transition veil (columns + label built by js/main.js) -->
+  <div class="veil" aria-hidden="true"><span class="veil-boot"></span></div>
+
+  <header class="site-nav">
+    <a class="nav-home" href="index.html" aria-label="Guilherme Galvão — home">GG</a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="index.html" data-i18n="nav.index">Index</a>
+      <a href="projects.html" data-i18n="nav.projects">Projects</a>
+      <a href="gallery.html" data-i18n="nav.gallery">Gallery</a>
+      <a href="about.html" data-i18n="nav.about">About</a>
+      <a href="work.html" data-i18n="nav.work">Your Work</a>
+    </nav>
+    <div class="nav-right">
+      <button class="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false" title="Theme">
+        <svg class="ico-sun" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="12" y1="2.5" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="21.5"/><line x1="2.5" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="21.5" y2="12"/><line x1="5.2" y1="5.2" x2="7" y2="7"/><line x1="17" y1="17" x2="18.8" y2="18.8"/><line x1="5.2" y1="18.8" x2="7" y2="17"/><line x1="17" y1="7" x2="18.8" y2="5.2"/></g></svg>
+        <svg class="ico-moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg>
+      </button>
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button class="lang-opt" data-lang="en" aria-pressed="true">EN</button>
+        <button class="lang-opt" data-lang="pt" aria-pressed="false">PT</button>
+      </div>
+      <button class="nav-burger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="nav-menu">
+    <a class="menu-link" href="index.html" data-i18n="nav.index">Index</a>
+    <a class="menu-link" href="projects.html" data-i18n="nav.projects">Projects</a>
+    <a class="menu-link" href="gallery.html" data-i18n="nav.gallery">Gallery</a>
+    <a class="menu-link" href="about.html" data-i18n="nav.about">About</a>
+    <a class="menu-link" href="work.html" data-i18n="nav.work">Your Work</a>
+    <p class="menu-meta" data-i18n="menu.meta">Designer &amp; photographer — Leiria, PT</p>
+  </div>
+
+  <main>
+    <header class="page-head">
+      <span class="kicker mask"><span class="mask-inner" data-i18n="about.kicker">About</span></span>
+      <h1 class="page-title">
+        <span class="mask"><span class="mask-inner" data-i18n="about.title1">Design, type</span></span>
+        <span class="mask"><span class="mask-inner" data-i18n="about.title2">&amp; light.</span></span>
+      </h1>
+    </header>
+
+    <section class="about-grid">
+      <figure class="portrait reveal">
+        <!-- PLACEHOLDER portrait — replace with your own photo -->
+        <img src="https://picsum.photos/seed/gg-portrait/900/1200" alt="Portrait of Guilherme Galvão">
+      </figure>
+
+      <div class="bio">
+        <h2 class="mask"><span class="mask-inner" data-i18n="about.lead">I make systems that draw, type that moves, and photographs that hold still.</span></h2>
+
+        <p class="reveal" data-i18n="about.p1">I'm Guilherme — a designer and photographer from Leiria, Portugal, working between graphic design, typography, generative art and creative coding. My practice sits where rules meet accident: writing small systems, then photographing or printing what they couldn't have predicted.</p>
+
+        <p class="reveal" data-i18n="about.p2">Recent work spans exhibition design, interactive installations driven by cameras and microphones, generative typography engines, and editorial photography along the Atlantic coast. I'm currently completing a Master's in Design and Multimedia at the University of Coimbra.</p>
+
+        <span class="kicker reveal" data-i18n="about.services">Services</span>
+        <ul class="services">
+          <li class="reveal"><span data-i18n="svc.identity">Identity systems</span> <span>01</span></li>
+          <li class="reveal"><span data-i18n="svc.type">Typography &amp; type design</span> <span>02</span></li>
+          <li class="reveal"><span data-i18n="svc.generative">Generative art &amp; creative coding</span> <span>03</span></li>
+          <li class="reveal"><span data-i18n="svc.install">Interactive installations</span> <span>04</span></li>
+          <li class="reveal"><span data-i18n="svc.photo">Photography</span> <span>05</span></li>
+          <li class="reveal"><span data-i18n="svc.web">Web design</span> <span>06</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Kinetic type — used once -->
+    <div class="marquee" aria-hidden="true">
+<div class="marquee-inner" data-marquee="about.marquee"></div>
+    </div>
+
+    <section class="contact">
+      <h2 class="mask"><span class="mask-inner" data-i18n="about.contact">Say olá.</span></h2>
+      <div class="contact-links">
+        <button class="contact-pill" data-copy="hello@guilhermegalvao.pt" data-cursor="copy">
+          <span class="pill-text">hello@guilhermegalvao.pt</span>
+        </button>
+        <a class="contact-pill" href="https://instagram.com" target="_blank" rel="noopener" data-social="instagram">Instagram ↗</a>
+        <a class="contact-pill" href="https://behance.net" target="_blank" rel="noopener" data-social="behance">Behance ↗</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <a class="footer-cta" href="projects.html"><span data-i18n-html="footer.cta.work">Or go straight<br>to the work</span> <span class="arrow">→</span></a>
+    <div class="footer-bottom">
+      <span>© 2026 Guilherme Galvão</span>
+      <span data-clock>Leiria, PT</span>
+      <nav aria-label="Social">
+        <a href="mailto:hello@guilhermegalvao.pt" data-social="email">Email</a>
+        <a href="https://instagram.com" target="_blank" rel="noopener" data-social="instagram">Instagram</a>
+        <a href="https://behance.net" target="_blank" rel="noopener" data-social="behance">Behance</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+
+  <script src="data/projects.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/poster.js"></script>
+  <script src="js/about.js"></script>
+</body>
+</html>

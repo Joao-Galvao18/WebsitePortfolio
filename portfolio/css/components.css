@@ -1,0 +1,362 @@
+/* ============================================================
+   COMPONENTS — nav, menu, footer, cursor, transition veil
+   ============================================================ */
+
+/* ---------- Nav ---------- */
+.site-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 140; /* above the menu overlay (120) so the burger can close it */
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: var(--gutter);
+  background: var(--paper);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition: height 0.4s var(--ease), background 0.4s var(--ease),
+              box-shadow 0.4s var(--ease), border-color 0.4s var(--ease);
+  border-bottom: 1px solid transparent;
+}
+
+/* Compact state — shrinks once scrolled out of the hero */
+.site-nav.is-compact {
+  height: 3.25rem;
+  background: color-mix(in srgb, var(--paper) 90%, transparent);
+  border-bottom-color: var(--line);
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--ink) 7%, transparent);
+}
+.site-nav.is-compact .nav-links { gap: clamp(1rem, 2.4vw, 2rem); }
+
+.nav-home {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  transition: color var(--t-fast);
+}
+.nav-home:hover, .nav-home:focus-visible { color: var(--cobalt); }
+
+.nav-links { display: flex; gap: clamp(1.2rem, 3vw, 2.6rem); }
+
+/* ---------- Right cluster: language toggle + burger ---------- */
+.nav-right { display: flex; align-items: center; gap: 0.9rem; }
+body.menu-open .lang-toggle,
+body.menu-open .theme-toggle { opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+
+/* Theme toggle — a single small icon button, sun ⇄ moon */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px; height: 30px;
+  color: var(--muted);
+  border-radius: 50%;
+  transition: color var(--t-fast), background var(--t-fast);
+}
+.theme-toggle:hover { color: var(--ink); background: var(--tint); }
+.theme-toggle .ico-moon { display: none; }
+:root[data-theme="dark"] .theme-toggle .ico-sun { display: none; }
+:root[data-theme="dark"] .theme-toggle .ico-moon { display: block; }
+
+/* Language toggle — plain EN·PT text, active one bold */
+.lang-toggle { display: inline-flex; align-items: center; gap: 0.1rem; }
+.lang-opt {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  padding: 0.2rem 0.35rem;
+  transition: color var(--t-fast);
+}
+.lang-opt:hover { color: var(--ink); }
+.lang-opt[aria-pressed="true"] { color: var(--ink); font-weight: 600; }
+
+.nav-links a {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  position: relative;
+  padding-block: 0.3rem;
+}
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 100%; height: 1px;
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--t-med) var(--ease);
+}
+.nav-links a:hover::after,
+.nav-links a:focus-visible::after { transform: scaleX(1); transform-origin: left; }
+.nav-links a[aria-current="page"] { color: var(--cobalt); }
+.nav-links a[aria-current="page"]::after { transform: scaleX(1); background: var(--cobalt); }
+
+/* ---------- Burger + mobile menu ---------- */
+.nav-burger {
+  display: none;
+  width: 2.6rem; height: 2.6rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  position: relative;
+  z-index: 130;
+}
+.nav-burger span {
+  display: block;
+  width: 26px; height: 2px;
+  background: var(--ink);
+  transition: transform var(--t-fast) var(--ease), background var(--t-fast);
+}
+body.menu-open .nav-burger span:first-child  { transform: translateY(4.5px) rotate(45deg); }
+body.menu-open .nav-burger span:last-child   { transform: translateY(-4.5px) rotate(-45deg); }
+
+/* when the dark menu is open, let it show through the nav bar and flip
+   the burger + logo to the paper colour so they read on the dark panel */
+body.menu-open .site-nav {
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+  border-bottom-color: transparent;
+}
+body.menu-open .nav-burger span { background: var(--paper); }
+body.menu-open .nav-home { color: var(--paper); }
+
+.nav-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: var(--ink);
+  color: var(--paper);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-inline: var(--gutter);
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 0.7s var(--ease), visibility 0s 0.7s;
+  visibility: hidden;
+}
+body.menu-open .nav-menu {
+  clip-path: inset(0 0 0% 0);
+  visibility: visible;
+  transition: clip-path 0.7s var(--ease), visibility 0s 0s;
+}
+
+.nav-menu a.menu-link {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  font-weight: 450;
+  line-height: 1.15;
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(1.5rem);
+  transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out), color var(--t-fast);
+}
+.nav-menu a.menu-link:hover { color: var(--cobalt); }
+body.menu-open .nav-menu a.menu-link { opacity: 1; transform: none; }
+body.menu-open .nav-menu a.menu-link:nth-child(1) { transition-delay: 0.25s; }
+body.menu-open .nav-menu a.menu-link:nth-child(2) { transition-delay: 0.32s; }
+body.menu-open .nav-menu a.menu-link:nth-child(3) { transition-delay: 0.39s; }
+body.menu-open .nav-menu a.menu-link:nth-child(4) { transition-delay: 0.46s; }
+body.menu-open .nav-menu a.menu-link:nth-child(5) { transition-delay: 0.53s; }
+
+.nav-menu .menu-meta {
+  margin-top: 3rem;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 0.5s 0.55s;
+}
+body.menu-open .nav-menu .menu-meta { opacity: 1; }
+
+@media (max-width: 760px) {
+  .nav-links { display: none; }
+  .nav-burger { display: flex; }
+  .lang-toggle { margin-right: 0.2rem; } /* stays visible next to the burger */
+}
+
+/* ---------- View toggle (shared: gallery + projects) ----------
+   Slim two-word switch with a sliding underline — no chunky pill. */
+.view-toggle {
+  position: relative;
+  display: inline-flex;
+  gap: 1.1rem;
+  flex: none;
+  padding-bottom: 6px;
+}
+/* sliding underline indicator */
+.toggle-pill {
+  position: absolute;
+  left: 0; bottom: 0;
+  height: 1.5px;
+  width: var(--pill-w, 3rem);
+  background: var(--cobalt);
+  transform: translateX(var(--pill-x, 0));
+  transition: transform 0.4s var(--ease), width 0.4s var(--ease);
+}
+.toggle-btn {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0;
+  transition: color var(--t-fast);
+}
+.toggle-btn:hover { color: var(--ink); }
+.toggle-btn[aria-pressed="true"] { color: var(--ink); }
+
+/* ---------- Footer ---------- */
+
+/* ---------- Footer ---------- */
+.site-footer {
+  border-top: 1px solid var(--line);
+  padding: clamp(3rem, 7vw, 5.5rem) var(--gutter) 1.5rem;
+}
+
+.footer-cta {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  font-weight: 450;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  display: inline-block;
+  position: relative;
+}
+.footer-cta .arrow {
+  display: inline-block;
+  color: var(--cobalt);
+  transition: transform var(--t-med) var(--ease);
+}
+.footer-cta:hover .arrow,
+.footer-cta:focus-visible .arrow { transform: translateX(0.35em) rotate(45deg); }
+
+.footer-bottom {
+  margin-top: clamp(2.5rem, 6vw, 4.5rem);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2.5rem;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+
+.footer-bottom nav { display: flex; gap: 1.6rem; }
+.footer-bottom a { position: relative; transition: color var(--t-fast); }
+.footer-bottom a:hover { color: var(--cobalt); }
+
+/* ---------- Custom cursor ---------- */
+.cursor {
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 999;
+  pointer-events: none;
+  width: 10px; height: 10px;
+  margin: -5px 0 0 -5px;
+  display: none;
+}
+html.has-cursor .cursor { display: block; }
+
+.cursor-dot {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--cobalt);
+  border: 1px solid var(--cobalt);
+  transition: transform 0.35s var(--ease-out), background 0.25s, border-color 0.25s;
+}
+.cursor.is-link .cursor-dot {
+  transform: scale(4.6);
+  background: transparent;
+  border-color: var(--cobalt);
+}
+.cursor.has-label .cursor-dot { transform: scale(7); background: var(--cobalt); }
+
+.cursor-label {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.6);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--paper);
+  opacity: 0;
+  white-space: nowrap;
+  transition: opacity 0.2s, transform 0.3s var(--ease-out);
+}
+.cursor.has-label .cursor-label { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+/* ---------- Page transition veil ---------- */
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* covers the first paint until main.js builds the transition */
+.veil-boot { position: absolute; inset: 0; background: var(--ink); }
+
+/* Solid panel behind the shapes */
+.veil-panel-bg { position: absolute; inset: 0; background: var(--ink); will-change: transform; }
+
+/* Scattered shapes layer */
+.veil-shapes { position: absolute; inset: 0; }
+.veil-shape {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  will-change: transform, opacity;
+}
+.veil-shape svg { width: 100%; height: 100%; display: block; }
+
+/* Destination label — HIDDEN by default; JS only shows it during a
+   transition and clears it afterwards, so it can never stay on screen. */
+.veil-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  visibility: hidden;
+  z-index: 2;
+}
+.veil-label span {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--step-4);
+  font-weight: 550;
+  letter-spacing: -0.03em;
+  color: var(--paper);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .veil { display: none; }
+}
+
+/* ---------- Page header (shared by inner pages) ---------- */
+.page-head { padding: calc(var(--nav-h) + clamp(2.5rem, 7vw, 5rem)) var(--gutter) clamp(1.8rem, 4vw, 3rem); }
+
+.page-title {
+  font-size: var(--step-4);
+  font-weight: 480;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+}
+
+.page-head .kicker { margin-bottom: 1rem; display: block; }

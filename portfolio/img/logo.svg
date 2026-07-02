@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-label="Guilherme Galvão monogram">
+  <!-- PLACEHOLDER LOGO — replace this file (or point site.logo in
+       data/projects.js at your own file) with your real mark. -->
+  <rect width="80" height="80" rx="16" fill="#15151B"/>
+  <!-- G bowl -->
+  <path d="M 56 24 A 21 21 0 1 0 56 44" fill="none" stroke="#E9E8E1" stroke-width="9" stroke-linecap="round"/>
+  <!-- G tongue -->
+  <path d="M 56 44 L 42 44" fill="none" stroke="#E9E8E1" stroke-width="9" stroke-linecap="round"/>
+  <!-- cobalt accent — the "second G" -->
+  <circle cx="60" cy="60" r="7" fill="#1D32F2"/>
+</svg>

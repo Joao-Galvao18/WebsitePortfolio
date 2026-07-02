@@ -1,0 +1,165 @@
+/* ============================================================
+   BASE — reset, design tokens, typography, utilities
+   ============================================================ */
+
+/* ---------- Tokens ---------- */
+:root {
+  /* ============================================================
+     POSTER COLOURS — the four shape colours. Fixed across themes.
+     Keep in sync with COLOR_VAR in js/poster.js.
+     ============================================================ */
+  --black:   #15151B;
+  --orange:  #F26419;
+  --blue:    #1D32F2;
+  --grey:    #B7B7AE;
+
+  /* Accent = blue (nav, buttons, links, transitions) */
+  --cobalt:      var(--blue);
+  --cobalt-deep: #1322B8;
+
+  /* Type */
+  --font-display: "Bricolage Grotesque", "Helvetica Neue", sans-serif;
+  --font-body:    "Instrument Sans", "Helvetica Neue", sans-serif;
+  --font-mono:    "Fragment Mono", "SFMono-Regular", monospace;
+
+  /* Type scale (fluid) */
+  --step--1: clamp(0.72rem, 0.69rem + 0.15vw, 0.81rem);
+  --step-0:  clamp(0.95rem, 0.9rem  + 0.25vw, 1.1rem);
+  --step-1:  clamp(1.2rem,  1.05rem + 0.7vw,  1.6rem);
+  --step-2:  clamp(1.6rem,  1.2rem  + 2vw,    2.6rem);
+  --step-3:  clamp(2.2rem,  1.4rem  + 4vw,    4.4rem);
+  --step-4:  clamp(3.2rem,  1.6rem  + 8vw,    8rem);
+}
+
+/* ============================================================
+   THEME SURFACES — light (default) and dark. These are the only
+   tokens that flip; poster colours above stay constant.
+   --paper = background · --ink = text · --tint = cards · --muted = 2nd text
+   ============================================================ */
+:root, :root[data-theme="light"] {
+  --paper:   #E9E8E1;
+  --tint:    #DEDDD2;
+  --ink:     #15151B;
+  --muted:   #75756C;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --paper:   #131318;
+  --tint:    #1E1E25;
+  --ink:     #ECEBE3;
+  --muted:   #8A8A82;
+  color-scheme: dark;
+}
+
+:root {
+  /* Derived tones — recompute from whichever surface tokens are active */
+  --line:       color-mix(in srgb, var(--ink) 16%, transparent);
+  --shadow:     color-mix(in srgb, var(--ink) 12%, transparent);
+  --scrim:      color-mix(in srgb, var(--paper) 8%, #000 92%);
+  --paper-soft: color-mix(in srgb, var(--paper) 40%, transparent);
+  --paper-fade: color-mix(in srgb, var(--paper) 0%, transparent);
+}
+
+/* Smooth the theme switch */
+body, .site-nav, .site-footer, .work-poster, .pm-preview,
+.folder-icon, .filter-btn, .toggle-track {
+  transition: background-color 0.4s var(--ease), color 0.4s var(--ease),
+              border-color 0.4s var(--ease);
+}
+
+:root {
+  /* Layout */
+  --gutter: clamp(1.1rem, 3.5vw, 3rem);
+  --nav-h:  4.25rem;
+
+  /* Motion */
+  --ease: cubic-bezier(0.65, 0.05, 0, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --t-fast: 0.3s;
+  --t-med:  0.6s;
+}
+
+/* ---------- Reset ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* NOTE: no `scroll-behavior: smooth` here — Lenis owns scrolling.
+   Having both active makes scrolling feel laggy and rubbery. */
+html.has-cursor, html.has-cursor * { cursor: none; }
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  min-height: 100svh;
+}
+
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+ul, ol { list-style: none; }
+
+::selection { background: var(--cobalt); color: var(--paper); }
+
+/* ---------- Typography ---------- */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+.kicker--ink { color: var(--ink); }
+
+/* ---------- Utilities ---------- */
+.wrap { padding-inline: var(--gutter); }
+
+.section { padding-block: clamp(4rem, 10vw, 8rem); }
+
+.rule { border: 0; border-top: 1px solid var(--line); }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px;
+  clip-path: inset(50%); overflow: hidden; white-space: nowrap;
+}
+
+/* Scroll reveal primitive (JS adds .in-view) */
+.reveal { opacity: 0; transform: translateY(2rem); transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out); }
+.reveal.in-view { opacity: 1; transform: none; }
+
+/* Masked text reveal (wrap content in .mask > .mask-inner) */
+.mask { display: block; overflow: hidden; }
+.mask-inner { display: block; transform: translateY(110%); transition: transform 0.9s var(--ease); }
+.in-view .mask-inner, .mask.in-view .mask-inner { transform: none; }
+
+/* ---------- Focus ---------- */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--cobalt);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal, .mask-inner { opacity: 1 !important; transform: none !important; }
+}
