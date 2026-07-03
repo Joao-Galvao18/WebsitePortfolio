@@ -54,11 +54,11 @@ window.PORTFOLIO = {
     "nav.gallery":  { en: "Gallery",  pt: "Galeria" },
     "nav.about":    { en: "About",    pt: "Sobre" },
     "nav.work":     { en: "Your Work", pt: "O Teu Trabalho" },
-    "menu.meta":    { en: "Designer & photographer — Leiria, PT", pt: "Designer e fotógrafo — Leiria, PT" },
+    "menu.meta":    { en: "Designer & photographer — Coimbra, Portugal", pt: "Designer e fotógrafo — Coimbra, Portugal" },
 
     "home.tag": {
-      en: "Independent designer & photographer working across typography, generative systems and image-making. Based in Leiria, Portugal.",
-      pt: "Designer e fotógrafo independente a trabalhar entre tipografia, sistemas generativos e a criação de imagem. Sediado em Leiria, Portugal.",
+      en: "Independent designer & photographer working across typography, generative systems and image-making. Based in Coimbra, Portugal.",
+      pt: "Designer e fotógrafo independente a trabalhar entre tipografia, sistemas generativos e a criação de imagem. Sediado em Coimbra, Portugal.",
     },
     "home.hint":     { en: "Drag, rotate & scale the shapes · click empty space to shuffle", pt: "Arrasta, roda e escala as formas · clica no espaço vazio para baralhar" },
     "home.save":     { en: "Save poster ↗", pt: "Guardar póster ↗" },
@@ -118,8 +118,8 @@ window.PORTFOLIO = {
     "about.title2":   { en: "& light.", pt: "e luz." },
     "about.lead":     { en: "I make systems that draw, type that moves, and photographs that hold still.", pt: "Faço sistemas que desenham, tipografia que se move e fotografias que ficam quietas." },
     "about.p1": {
-      en: "I'm Guilherme — a designer and photographer from Leiria, Portugal, working between graphic design, typography, generative art and creative coding. My practice sits where rules meet accident: writing small systems, then photographing or printing what they couldn't have predicted.",
-      pt: "Sou o Guilherme — designer e fotógrafo de Leiria, Portugal, a trabalhar entre design gráfico, tipografia, arte generativa e programação criativa. A minha prática vive onde as regras encontram o acaso: escrever pequenos sistemas e depois fotografar ou imprimir aquilo que não conseguiam prever.",
+      en: "I'm Guilherme — a designer and photographer from Coimbra, Portugal, working between graphic design, typography, generative art and creative coding. My practice sits where rules meet accident: writing small systems, then photographing or printing what they couldn't have predicted.",
+      pt: "Sou o Guilherme — designer e fotógrafo de Coimbra, Portugal, a trabalhar entre design gráfico, tipografia, arte generativa e programação criativa. A minha prática vive onde as regras encontram o acaso: escrever pequenos sistemas e depois fotografar ou imprimir aquilo que não conseguiam prever.",
     },
     "about.p2": {
       en: "Recent work spans exhibition design, interactive installations driven by cameras and microphones, generative typography engines, and editorial photography along the Atlantic coast. I'm currently completing a Master's in Design and Multimedia at the University of Coimbra.",
@@ -143,7 +143,7 @@ window.PORTFOLIO = {
   site: {
     logo:      "img/logo.svg",  /* PLACEHOLDER mark — swap for your own logo file */
     portrait:  "https://picsum.photos/seed/gg-portrait/900/1200", /* PLACEHOLDER — your photo */
-    email:     "hello@guilhermegalvao.pt",
+    email:     "joaogcosta11@gmail.com",
     instagram: "https://instagram.com",  /* your profile URL */
     behance:   "https://behance.net",    /* your profile URL */
   },
