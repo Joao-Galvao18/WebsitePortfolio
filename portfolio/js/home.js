@@ -10,6 +10,10 @@
   // shapes are easy to grab and place precisely. Other pages keep the easing.
   GG.cursorEase = 1;
 
+  // Assigned by the wordmark module (1b); the poster shuffle re-rolls the
+  // letter typefaces through this.
+  let shuffleLetters = null;
+
   /* ============================================================
      1. HERO — poster editor
         · Shuffle: new random shapes/colors/positions
@@ -39,6 +43,7 @@
       });
       topZ = poster.length;
       positionAll();
+      rebuildClip();
       if (selected != null) selectShape(selected);
     }
 
@@ -128,18 +133,45 @@
       return { x: r.left + s.x * r.width, y: r.top + s.y * r.height };
     }
 
+    // A shape's box is larger than its drawing (transparent corners on
+    // rotated shapes), so resolve which shape is really under the pointer:
+    // topmost PAINTED geometry wins; the nearest box is the forgiving
+    // fallback so a near-miss still grabs instead of shuffling.
+    function shapeAtPoint(x, y) {
+      let firstBox = null;
+      for (const el of document.elementsFromPoint(x, y)) {
+        if (!(el instanceof HTMLElement) || !el.classList.contains("shape")) continue;
+        if (!firstBox) firstBox = el;
+        const svg = el.querySelector("svg");
+        const geo = svg && svg.firstElementChild;
+        try {
+          const p = new DOMPoint(x, y).matrixTransform(svg.getScreenCTM().inverse());
+          if (geo.isPointInFill(p) || (geo.hasAttribute("stroke") && geo.isPointInStroke(p))) return el;
+        } catch (err) { /* keep looking; fall back to the box */ }
+      }
+      return firstBox;
+    }
+
     posterEl.addEventListener("pointerdown", (e) => {
-      const node = e.target.closest(".shape");
+      const role = e.target.dataset.role;
+      let node = e.target.closest(".shape");
+      if (node && !role) node = shapeAtPoint(e.clientX, e.clientY) || node;
       if (!node) {
         // click on empty space → shuffle
         deselect();
         shuffle();
         return;
       }
+      // a grab must win against an in-flight pop-in tween, otherwise the
+      // tween keeps overwriting the drag transform and the shape won't move
+      if (window.gsap) {
+        gsap.killTweensOf(node);
+        node.style.opacity = "";
+        node.style.visibility = "";
+      }
       const i = +node.dataset.i;
       selectShape(i);
       curNode = node; cur = poster[i];
-      const role = e.target.dataset.role;
       const c = logicalCentre(cur);
       cx = c.x; cy = c.y;
       moved = 0; downX = e.clientX; downY = e.clientY;
@@ -161,7 +193,7 @@
       node.style.zIndex = String(++topZ);   // always float above the rest
       node.classList.add("is-grabbing");
       liftNode(node, true);
-      posterEl.setPointerCapture(e.pointerId);
+      try { posterEl.setPointerCapture(e.pointerId); } catch (err) { /* inactive pointer */ }
     });
 
     posterEl.addEventListener("pointermove", (e) => {
@@ -213,6 +245,7 @@
     function shuffle() {
       poster = window.Poster.random();
       deselect();
+      if (shuffleLetters) shuffleLetters();
       if (!reduced && window.gsap) {
         render();
         gsap.fromTo(posterEl.querySelectorAll(".shape"),
@@ -225,6 +258,109 @@
     }
 
     window.addEventListener("resize", positionAll);
+
+    /* ---------- Wordmark overlap clip ----------
+       A white copy of the wordmark (built by module 1b) sits on top of the
+       black one, clipped to the union of the shapes — so any part of a
+       letter overlapping a shape reads white. The clipPath children mirror
+       drawShape()'s geometry in the same 100×100 box, and every frame each
+       child copies its shape node's live transform (drag, rotate, scale,
+       gsap pop-ins all included). */
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const nameEl = document.querySelector(".hero-name-mini");
+    let clipPathEl = null;
+    if (nameEl) {
+      const defs = document.createElementNS(SVG_NS, "svg");
+      defs.setAttribute("class", "hero-word-defs");
+      defs.setAttribute("aria-hidden", "true");
+      clipPathEl = document.createElementNS(SVG_NS, "clipPath");
+      clipPathEl.setAttribute("id", "heroWordClip");
+      clipPathEl.setAttribute("clipPathUnits", "userSpaceOnUse");
+      defs.appendChild(clipPathEl);
+      nameEl.appendChild(defs);
+    }
+
+    // geometry mirror of drawShape(), as clipPath children
+    function clipShapeEl(type) {
+      const make = (tag, attrs) => {
+        const el = document.createElementNS(SVG_NS, tag);
+        for (const k in attrs) el.setAttribute(k, attrs[k]);
+        return el;
+      };
+      switch (type) {
+        case "circle":   return make("circle", { cx: 50, cy: 50, r: 46 });
+        case "ring":     return make("path", { "clip-rule": "evenodd",
+          d: "M3 50 a47 47 0 1 0 94 0 a47 47 0 1 0 -94 0 Z M17 50 a33 33 0 1 0 66 0 a33 33 0 1 0 -66 0 Z" });
+        case "square":   return make("rect", { x: 6, y: 6, width: 88, height: 88 });
+        case "triangle": return make("polygon", { points: "50,6 92,88 8,88" });
+        case "pill":     return make("rect", { x: 6, y: 30, width: 88, height: 40, rx: 20 });
+        case "arc":      return make("path", { d: "M6 50 A44 44 0 0 1 94 50 Z" });
+        case "diamond": {
+          const el = make("rect", { x: 14, y: 14, width: 72, height: 72 });
+          el._extra = "rotate(45 50 50)";
+          return el;
+        }
+        case "pentagon": {
+          let pts = "";
+          for (let k = 0; k < 5; k++) { const a = -Math.PI/2 + k*2*Math.PI/5; pts += `${50+Math.cos(a)*46},${50+Math.sin(a)*46} `; }
+          return make("polygon", { points: pts.trim() });
+        }
+        case "hexagon": {
+          let pts = "";
+          for (let k = 0; k < 6; k++) { const a = -Math.PI/2 + k*Math.PI/3; pts += `${50+Math.cos(a)*46},${50+Math.sin(a)*46} `; }
+          return make("polygon", { points: pts.trim() });
+        }
+        case "cross":    return make("path", { d: "M34 6 H66 V34 H94 V66 H66 V94 H34 V66 H6 V34 H34 Z" });
+        case "quarter":  return make("path", { d: "M6 6 L94 6 A88 88 0 0 1 6 94 Z" });
+        case "chevron":  return make("path", { d: "M6 32 L50 74 L94 32 L70 32 L50 52 L30 32 Z" });
+        default:         return make("circle", { cx: 50, cy: 50, r: 46 });
+      }
+    }
+
+    function rebuildClip() {
+      if (!clipPathEl) return;
+      while (clipPathEl.firstChild) clipPathEl.removeChild(clipPathEl.firstChild);
+      poster.forEach((s, i) => {
+        const el = clipShapeEl(s.type);
+        el.dataset.i = i;
+        clipPathEl.appendChild(el);
+      });
+    }
+
+    function updateClip() {
+      if (!clipPathEl || !clipPathEl.children.length) return;
+      const wordRect = nameEl.getBoundingClientRect();
+      if (wordRect.bottom < 0 || wordRect.top > window.innerHeight) return; // offscreen
+      const posterRect = posterEl.getBoundingClientRect();
+      const dx = posterRect.left - wordRect.left;
+      const dy = posterRect.top - wordRect.top;
+      for (const c of clipPathEl.children) {
+        const node = posterEl.children[+c.dataset.i];
+        if (!node) continue;
+        const px = node.offsetWidth;
+        const cs = getComputedStyle(node);
+        if (!px || cs.visibility === "hidden" || parseFloat(cs.opacity) < 0.5) {
+          c.setAttribute("transform", "scale(0)");
+          continue;
+        }
+        // map the shape's 100×100 local box → wordmark coordinates:
+        // word offset · transform about the node centre · viewBox scale
+        const m = cs.transform && cs.transform !== "none" ? new DOMMatrix(cs.transform) : new DOMMatrix();
+        const o = px / 2, k = px / 100;
+        const mat = new DOMMatrix()
+          .translateSelf(dx, dy)
+          .translateSelf(o, o)
+          .multiplySelf(m)
+          .translateSelf(-o, -o)
+          .scaleSelf(k, k);
+        c.setAttribute("transform",
+          `matrix(${mat.a} ${mat.b} ${mat.c} ${mat.d} ${mat.e} ${mat.f})` + (c._extra ? " " + c._extra : ""));
+      }
+    }
+    (function clipLoop() {
+      updateClip();
+      requestAnimationFrame(clipLoop);
+    })();
 
     // Entrance
     render();
@@ -303,39 +439,101 @@
     }
     if (submitBtn) submitBtn.addEventListener("click", submit);
     nameInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+    /* ---------- Idle auto-shuffle ----------
+       If the visitor does nothing for 10s, the shapes and the wordmark
+       typefaces reshuffle every 2s until they interact again. */
+    const IDLE_AFTER = 10000, IDLE_EVERY = 2000;
+    let lastActivity = Date.now();
+    const markActivity = () => { lastActivity = Date.now(); };
+    ["pointerdown", "pointermove", "keydown", "wheel", "touchstart"].forEach((ev) =>
+      window.addEventListener(ev, markActivity, { passive: true }));
+
+    if (!reduced) {
+      setInterval(() => {
+        if (document.hidden || !modal.hidden) return;
+        if (Date.now() - lastActivity < IDLE_AFTER) return;
+        if (posterEl.getBoundingClientRect().bottom <= 0) return; // hero scrolled away
+        shuffle();
+      }, IDLE_EVERY);
+    }
   }
 
   /* ============================================================
-     1b. HERO WORDMARK — hover cycles each letter through typefaces
-         On hover the letters flow through a set of contrasting fonts
-         (serif · grotesque · mono · geometric) as a staggered wave;
-         on leave they settle back to the base serif.
+     1b. HERO WORDMARK — per-letter typeface roulette
+         Starts in the plain sans. Hovering a letter cycles ONLY that
+         letter through contrasting typefaces, and on leave it KEEPS
+         the face it landed on. A poster shuffle (empty-space click or
+         idle auto-shuffle) re-rolls every letter. The white clipped
+         copy (.hero-word-clip) is what turns letters white over shapes.
      ============================================================ */
   (function () {
     const word = document.querySelector(".hero-word");
     if (!word) return;
+
+    // white overlay copy, clipped to the shapes by #heroWordClip
+    const clone = word.cloneNode(true);
+    clone.classList.add("hero-word-clip");
+    word.parentElement.appendChild(clone);
+
     const letters = [...word.querySelectorAll(".hero-letter")];
+    const ghosts = [...clone.querySelectorAll(".hero-letter")];
+
     const FONTS = [
+      '"Instrument Sans", "Helvetica Neue", Arial, sans-serif', // base — safe sans
       '"Fraunces", serif',
       '"Bricolage Grotesque", sans-serif',
       '"Fragment Mono", monospace',
       '"Syne", sans-serif',
     ];
-    let timer = 0, tick = 0;
-    function start() {
-      if (timer || reduced) return;
-      tick = 0;
-      timer = setInterval(() => {
-        tick++;
-        letters.forEach((l, i) => { l.style.fontFamily = FONTS[(tick + i) % FONTS.length]; });
-      }, 140);
+    const current = letters.map(() => 0);
+
+    function setFont(i, fi) {
+      current[i] = fi;
+      letters[i].style.fontFamily = FONTS[fi];
+      ghosts[i].style.fontFamily = FONTS[fi];
     }
-    function stop() {
-      clearInterval(timer); timer = 0;
-      letters.forEach((l) => { l.style.fontFamily = ""; });
+
+    // The wordmark is pointer-events:none so shapes behind it stay grabbable.
+    // Hover is resolved from pointer coordinates instead — the equal-width
+    // letter columns make the index a simple division.
+    let hovered = -1, hoverTimer = 0;
+    function setHover(i) {
+      if (i === hovered) return;
+      hovered = i;
+      clearInterval(hoverTimer); hoverTimer = 0;
+      if (i < 0) return;
+      setFont(i, (current[i] + 1) % FONTS.length);
+      if (!reduced) hoverTimer = setInterval(() => setFont(i, (current[i] + 1) % FONTS.length), 110);
     }
-    word.addEventListener("pointerenter", start);
-    word.addEventListener("pointerleave", stop);
+    window.addEventListener("pointermove", (e) => {
+      // not while grabbing or pointing at a shape — dragging across the
+      // wordmark shouldn't flick the letters
+      if ((e.target.closest && e.target.closest(".shape")) ||
+          document.querySelector("#poster .shape.is-grabbing")) { setHover(-1); return; }
+      const r = word.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) { setHover(-1); return; }
+      setHover(Math.max(0, Math.min(letters.length - 1,
+        Math.floor(((e.clientX - r.left) / r.width) * letters.length))));
+    }, { passive: true });
+
+    // Poster shuffle → each letter does a short slot-machine spin (a few
+    // quick flicks at its own pace) and settles on a random face, instead
+    // of snapping instantly. Instant under reduced motion.
+    const spins = letters.map(() => 0);
+    shuffleLetters = () => {
+      letters.forEach((_, i) => {
+        clearInterval(spins[i]);
+        if (reduced) { setFont(i, Math.floor(Math.random() * FONTS.length)); return; }
+        let flicks = 3 + Math.floor(Math.random() * 4); // 3–6 flicks
+        const hop = () => setFont(i, (current[i] + 1 + Math.floor(Math.random() * (FONTS.length - 1))) % FONTS.length);
+        hop();
+        spins[i] = setInterval(() => {
+          hop();
+          if (--flicks <= 0) { clearInterval(spins[i]); spins[i] = 0; }
+        }, 70 + Math.random() * 60);
+      });
+    };
   })();
 
   /* ============================================================

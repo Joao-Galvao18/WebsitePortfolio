@@ -82,25 +82,48 @@
 }
 
 /* Equal-width letter columns → always fills the full width, and font swaps
-   on hover never nudge the layout. */
+   on hover never nudge the layout. Sized so the glyphs nearly fill their
+   columns — big, tight, edge to edge. flex-end (not baseline) alignment so
+   one letter changing font never shifts the others. */
 .hero-word {
   display: flex;
-  align-items: baseline;
+  align-items: flex-end;
   width: 100%;
-  font-family: "Fraunces", var(--font-display);
+  font-family: var(--font-body);   /* neutral sans start; letters cycle on hover */
   font-optical-sizing: auto;
   font-weight: 600;
-  font-size: clamp(1.7rem, 6.5vw, 5.5rem);
+  font-size: clamp(2.2rem, 12vw, 16rem);
   line-height: 0.95;
   text-transform: uppercase;
-  color: var(--muted);
-  pointer-events: auto;      /* so hover can drive the typeface swap */
+  color: var(--ink);
+  pointer-events: none;      /* clicks fall through to the shapes behind;
+                                letter hover is coordinate-driven in home.js */
 }
 .hero-letter {
   flex: 1 1 0;
+  min-width: 0;   /* columns stay strictly equal — a wide glyph overflows its
+                     own column instead of pushing the other letters around */
   text-align: center;
   transition: opacity var(--t-fast) var(--ease-out);
 }
+
+/* White copy of the wordmark, clipped to the union of the shapes (the
+   clipPath is kept in sync by js/home.js) — so letters read black on the
+   paper but white wherever a shape passes underneath. */
+.hero-word-clip {
+  position: absolute;
+  inset: 0;
+  color: #fff;
+  pointer-events: none;
+  -webkit-clip-path: url(#heroWordClip);
+  clip-path: url(#heroWordClip);
+}
+
+/* In dark mode the letters are simply always white */
+:root[data-theme="dark"] .hero-word { color: #fff; }
+
+/* zero-size svg that holds #heroWordClip */
+.hero-word-defs { position: absolute; width: 0; height: 0; }
 
 .hero-foot {
   position: relative;
@@ -113,7 +136,7 @@
   gap: 1.2rem 2rem;
   pointer-events: none; /* let shapes under the tagline still be grabbed... */
 }
-.hero-foot > * { pointer-events: auto; } /* ...but keep UI clickable */
+.hero-foot .btn-save { pointer-events: auto; } /* ...but keep the save button clickable */
 
 .hero-tag {
   max-width: 34ch;
