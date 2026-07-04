@@ -1,2 +1,14 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Never touch line endings in binary formats
+*.pdf binary
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.gif binary
+*.webp binary
+*.mp4 binary
+*.webm binary
+*.woff binary
+*.woff2 binary
