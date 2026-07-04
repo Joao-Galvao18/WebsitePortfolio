@@ -46,8 +46,36 @@
 
   titleEl.textContent = project.title;
   yearEl.textContent = project.year;
-  descEl.textContent = project.description;
+  descEl.textContent = GG.pick(project.description);
   mediaEl.innerHTML = GG.media(project, { alt: project.title });
+
+  /* ---------- Extra media gallery ----------
+     Renders the project's optional `media` array (see data/projects.js).
+     The layout handles any count: items flow full-width / half / half,
+     and a leftover half at the end stretches to full so nothing dangles. */
+  const galleryEl = main.querySelector("[data-project-gallery]");
+  const media = Array.isArray(project.media) ? project.media : [];
+  if (galleryEl && media.length) {
+    galleryEl.hidden = false;
+    galleryEl.innerHTML = media
+      .map((m, i) => {
+        const caption = GG.pick(m.caption) || "";
+        return `
+        <figure class="project-gallery-item reveal">
+          ${GG.media(m, { alt: caption || `${project.title} — ${i + 1}`, attrs: 'loading="lazy"' })}
+          ${caption ? `<figcaption>${caption}</figcaption>` : ""}
+        </figure>`;
+      })
+      .join("");
+    galleryEl.querySelectorAll(".reveal").forEach((el) => GG.observe(el));
+    // captions can be { en, pt } objects — keep them translated in place
+    GG.onLang(() => {
+      galleryEl.querySelectorAll(".project-gallery-item figcaption").forEach((fc, i) => {
+        const withCaption = media.filter((m) => m.caption);
+        if (withCaption[i]) fc.textContent = GG.pick(withCaption[i].caption);
+      });
+    });
+  }
 
   function paintCategory() {
     const label = GG.t("filter." + project.category);

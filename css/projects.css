@@ -74,6 +74,7 @@
   width: 42%; height: 22%;
   background: var(--ink);
   border-radius: 7px 7px 0 0;
+  transition: background-color var(--t-fast) var(--ease-out);
 }
 /* folder body */
 .folder-icon::after {
@@ -83,7 +84,16 @@
   width: 100%; height: 84%;
   background: var(--ink);
   border-radius: 4px 10px 10px 10px;
+  transition: background-color var(--t-fast) var(--ease-out);
 }
+
+/* hovered / focused folders turn blue */
+.folder:hover .folder-icon::before,
+.folder:hover .folder-icon::after,
+.folder:focus-visible .folder-icon::before,
+.folder:focus-visible .folder-icon::after { background: var(--cobalt); }
+.folder:hover .folder-icon .tab-dot,
+.folder:focus-visible .folder-icon .tab-dot { background: var(--paper); }
 
 /* small filename lines inside the folder body, as a paper detail */
 .folder-icon .lines {
@@ -115,6 +125,7 @@
   border-radius: 50%;
   background: var(--cobalt);
   z-index: 2;
+  transition: background-color var(--t-fast) var(--ease-out);
 }
 
 .folder-label {

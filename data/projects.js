@@ -4,16 +4,19 @@
    ►► Full step-by-step instructions are in SETUP.md ◄◄
 
    Quick map:
-     backend     → (optional) shared "Your Work" gallery via Supabase
+     curatedPosters → posters you hand-picked to show everyone
+                      (saved posters are EMAILED to site.email)
      defaultLang → first-load language ("en" | "pt")
      i18n        → every interface string, in EN + PT
      site        → logo, portrait, email, social links
      projects[]  → the Projects page + home carousel (featured:true)
      gallery[]   → the Gallery page (canvas + calendar views)
 
-   IMAGES are picsum.photos PLACEHOLDERS — replace `image`/`src`/
-   `portrait`/`logo` with your own files, e.g. "img/rebus-01.jpg".
-   Add a `video:` field next to any `image` to play a muted loop.
+   SWITCHING IMAGES: every image here is a picsum.photos PLACEHOLDER.
+   Put your files in the img/ folder and change the path, e.g.
+     image: "img/rebus-01.jpg"
+   Add a `video:` field next to any `image` to play a muted loop
+   (the image becomes the video's poster frame).
    COLOURS live in css/base.css (four tokens at the top).
    ============================================================ */
 
@@ -21,22 +24,23 @@ window.PORTFOLIO = {
 
   /* ---------- "Your Work" — email + curated posters ----------
      When someone saves a poster it is: (1) kept on THEIR device so
-     they see it in Your Work, and (2) emailed to you so you can
-     hand-pick the best into the curated list below.
+     they see it in Your Work, and (2) emailed to YOU — automatically,
+     to the `email` in the site block below, via formsubmit.co.
+     FIRST TIME ONLY: formsubmit.co sends you one "activate" email —
+     click its link once and every poster after that reaches you.     */
 
-     To receive the emails: make a free key at web3forms.com (just
-     enter your email, no account) and paste it here. Leave blank to
-     skip emailing (posters still save on the maker's device).       */
-  backend: {
-    web3formsKey: "",   /* e.g. "a1b2c3d4-...." from web3forms.com */
-  },
+  /* ---------- FEATURING VISITOR POSTERS ----------
+     Posters YOU hand-pick to show on the Your Work page (everyone
+     sees these; visitors also see their own device's posters).
 
-  /* Posters YOU hand-pick to feature on the Your Work page.
-     The email you receive contains a `shapes_json` value — paste it
-     as `shapes` below (as an array), give it a name/author, done.
-     Example:
-       { name: "Untitled", author: "Ana", date: "2026-05",
-         shapes: [ {"type":"circle","x":0.5,"y":0.4,"size":0.12,"rot":0,"color":"blue"} ] },
+     Every save emails you a "paste_into_curatedPosters" line —
+     copy that whole line and paste it inside the brackets below.
+     Add an optional  author: "Their Name"  to credit the maker
+     (it shows on the card; otherwise the card says "Featured").
+     Delete a line to unfeature it. Example:
+
+       { name: "Sunrise", author: "Ana", date: "2026-05", ratio: "16:9",
+         shapes: [{"type":"circle","x":0.5,"y":0.4,"size":0.12,"rot":0,"color":"blue"}] },
   */
   curatedPosters: [
   ],
@@ -143,11 +147,26 @@ window.PORTFOLIO = {
   site: {
     logo:      "img/logo.svg",  /* PLACEHOLDER mark — swap for your own logo file */
     portrait:  "https://picsum.photos/seed/gg-portrait/900/1200", /* PLACEHOLDER — your photo */
-    email:     "joaogcosta11@gmail.com",
+    email:     "joaogcosta11@gmail.com", /* saved posters are emailed here */
+    cv:        "cv.pdf",        /* the nav CV button downloads this — overwrite cv.pdf with your own */
     instagram: "https://instagram.com",  /* your profile URL */
     behance:   "https://behance.net",    /* your profile URL */
   },
 
+  /* ---------- ADDING A PROJECT ----------
+     Copy any block below, paste it, change the values. Fields:
+       slug        → short id used in the page URL (letters/dashes)
+       title/year/category/description → shown everywhere
+       image       → the COVER: thumbnail, carousel and the big
+                     picture at the top of the project page
+       featured    → true = appears in the home carousel (max 6)
+       media       → OPTIONAL extra pictures/videos for the project
+                     page, shown in a grid under the description.
+                     Any amount works — the layout adapts. Each item:
+                       { image: "img/x.jpg" }                          picture
+                       { image: "img/x.jpg", caption: "..." }          + caption
+                       { image: "img/poster.jpg", video: "video/x.mp4" }  looping video
+     ---------------------------------------- */
   projects: [
     {
       slug: "rebus",
@@ -156,7 +175,17 @@ window.PORTFOLIO = {
       category: "Generative",
       description: "Generative poetry engine turning Portuguese text into expressive skeleton-font typography.",
       image: "https://picsum.photos/seed/gg-rebus/1280/920",   /* PLACEHOLDER */
-      featured: true
+      featured: true,
+      /* PLACEHOLDER extra media — swap for your files or delete */
+      media: [
+        { image: "https://picsum.photos/seed/gg-rebus-a/1600/900" },
+        { image: "https://picsum.photos/seed/gg-rebus-b/1000/750", caption: "Skeleton font, weight tests" },
+        { image: "https://picsum.photos/seed/gg-rebus-c/1000/750" },
+        { image: "https://picsum.photos/seed/gg-rebus-d/1600/900", caption: "Poster output, A1 series" },
+        { image: "https://picsum.photos/seed/gg-rebus-e/1000/750" },
+        { image: "https://picsum.photos/seed/gg-rebus-f/1000/750" },
+        { image: "https://picsum.photos/seed/gg-rebus-g/1600/900" }
+      ]
     },
     {
       slug: "brdy",
@@ -165,7 +194,16 @@ window.PORTFOLIO = {
       category: "Spatial",
       description: "Exhibition design in five rooms, from punk deconstruction to digital legacy.",
       image: "https://picsum.photos/seed/gg-brdy/1280/920",    /* PLACEHOLDER */
-      featured: true
+      featured: true,
+      /* PLACEHOLDER extra media — swap for your files or delete */
+      media: [
+        { image: "https://picsum.photos/seed/gg-brdy-a/1600/900", caption: "Room one — punk deconstruction" },
+        { image: "https://picsum.photos/seed/gg-brdy-b/1000/750" },
+        { image: "https://picsum.photos/seed/gg-brdy-c/1000/750" },
+        { image: "https://picsum.photos/seed/gg-brdy-d/1600/900" },
+        { image: "https://picsum.photos/seed/gg-brdy-e/1000/750" },
+        { image: "https://picsum.photos/seed/gg-brdy-f/1000/750", caption: "Room five — digital legacy" }
+      ]
     },
     {
       slug: "draw-it-together",
@@ -174,7 +212,15 @@ window.PORTFOLIO = {
       category: "Interactive",
       description: "Two-player cooperative drawing game with Arduino joystick and microphone controls.",
       image: "https://picsum.photos/seed/gg-dit/1280/920",     /* PLACEHOLDER */
-      featured: true
+      featured: true,
+      media: [
+        { image: "https://picsum.photos/seed/gg-dit-a/1600/900" },
+        { image: "https://picsum.photos/seed/gg-dit-b/1000/750", caption: "Joystick + mic control rig" },
+        { image: "https://picsum.photos/seed/gg-dit-c/1000/750" },
+        { image: "https://picsum.photos/seed/gg-dit-d/1600/900" },
+        { image: "https://picsum.photos/seed/gg-dit-e/1000/750" },
+        { image: "https://picsum.photos/seed/gg-dit-f/1000/750" }
+      ]
     },
     {
       slug: "patchbay",
@@ -183,7 +229,13 @@ window.PORTFOLIO = {
       category: "Generative",
       description: "Camera-driven audiovisual step sequencer with a generative modular rack.",
       image: "https://picsum.photos/seed/gg-patch/1280/920",   /* PLACEHOLDER */
-      featured: true
+      featured: true,
+      media: [
+        { image: "https://picsum.photos/seed/gg-patch-a/1600/900", caption: "The rack, live" },
+        { image: "https://picsum.photos/seed/gg-patch-b/1000/750" },
+        { image: "https://picsum.photos/seed/gg-patch-c/1000/750" },
+        { image: "https://picsum.photos/seed/gg-patch-d/1600/900" }
+      ]
     },
     {
       slug: "litoral",
@@ -192,7 +244,17 @@ window.PORTFOLIO = {
       category: "Photography",
       description: "Photographic series along the Portuguese Atlantic coast, shot over one winter.",
       image: "https://picsum.photos/seed/gg-litoral/1280/920", /* PLACEHOLDER */
-      featured: true
+      featured: true,
+      media: [
+        { image: "https://picsum.photos/seed/gg-litoral-a/1600/900" },
+        { image: "https://picsum.photos/seed/gg-litoral-b/1000/750" },
+        { image: "https://picsum.photos/seed/gg-litoral-c/1000/750" },
+        { image: "https://picsum.photos/seed/gg-litoral-d/1600/900", caption: "Nazaré, January" },
+        { image: "https://picsum.photos/seed/gg-litoral-e/1000/750" },
+        { image: "https://picsum.photos/seed/gg-litoral-f/1000/750" },
+        { image: "https://picsum.photos/seed/gg-litoral-g/1600/900" },
+        { image: "https://picsum.photos/seed/gg-litoral-h/1600/900" }
+      ]
     },
     {
       slug: "cables",
@@ -201,7 +263,12 @@ window.PORTFOLIO = {
       category: "Generative",
       description: "Autonomous modular-synth patch panel driven by Perlin noise, FFT input and time of day.",
       image: "https://picsum.photos/seed/gg-cables/1280/920",  /* PLACEHOLDER */
-      featured: false
+      featured: false,
+      media: [
+        { image: "https://picsum.photos/seed/gg-cables-a/1600/900" },
+        { image: "https://picsum.photos/seed/gg-cables-b/1000/750" },
+        { image: "https://picsum.photos/seed/gg-cables-c/1000/750" }
+      ]
     },
     {
       slug: "lumiere",
@@ -210,7 +277,13 @@ window.PORTFOLIO = {
       category: "Interactive",
       description: "Front-end cinema experience — programme, seat map and booking flow.",
       image: "https://picsum.photos/seed/gg-lumiere/1280/920", /* PLACEHOLDER */
-      featured: false
+      featured: false,
+      media: [
+        { image: "https://picsum.photos/seed/gg-lumiere-a/1600/900" },
+        { image: "https://picsum.photos/seed/gg-lumiere-b/1000/750", caption: "Seat map" },
+        { image: "https://picsum.photos/seed/gg-lumiere-c/1000/750" },
+        { image: "https://picsum.photos/seed/gg-lumiere-d/1600/900" }
+      ]
     },
     {
       slug: "aco",
@@ -219,7 +292,14 @@ window.PORTFOLIO = {
       category: "Typography",
       description: "Display type specimen exploring industrial letterforms and stencil cuts.",
       image: "https://picsum.photos/seed/gg-aco/1280/920",     /* PLACEHOLDER */
-      featured: false
+      featured: false,
+      media: [
+        { image: "https://picsum.photos/seed/gg-aco-a/1600/900" },
+        { image: "https://picsum.photos/seed/gg-aco-b/1000/750" },
+        { image: "https://picsum.photos/seed/gg-aco-c/1000/750", caption: "Stencil cuts" },
+        { image: "https://picsum.photos/seed/gg-aco-d/1600/900" },
+        { image: "https://picsum.photos/seed/gg-aco-e/1600/900" }
+      ]
     },
     {
       slug: "pedra-e-cal",
@@ -228,7 +308,16 @@ window.PORTFOLIO = {
       category: "Photography",
       description: "Stone, lime and shadow — vernacular architecture of the Centro region.",
       image: "https://picsum.photos/seed/gg-pedra/1280/920",   /* PLACEHOLDER */
-      featured: false
+      featured: false,
+      media: [
+        { image: "https://picsum.photos/seed/gg-pedra-a/1600/900" },
+        { image: "https://picsum.photos/seed/gg-pedra-b/1000/750" },
+        { image: "https://picsum.photos/seed/gg-pedra-c/1000/750" },
+        { image: "https://picsum.photos/seed/gg-pedra-d/1600/900" },
+        { image: "https://picsum.photos/seed/gg-pedra-e/1000/750", caption: "Lime wall, midday" },
+        { image: "https://picsum.photos/seed/gg-pedra-f/1000/750" },
+        { image: "https://picsum.photos/seed/gg-pedra-g/1600/900" }
+      ]
     },
     {
       slug: "norte-identity",
@@ -237,7 +326,13 @@ window.PORTFOLIO = {
       category: "Identity",
       description: "Visual identity and stationery for an architecture studio in Porto.",
       image: "https://picsum.photos/seed/gg-norte/1280/920",   /* PLACEHOLDER */
-      featured: false
+      featured: false,
+      media: [
+        { image: "https://picsum.photos/seed/gg-norte-a/1600/900" },
+        { image: "https://picsum.photos/seed/gg-norte-b/1000/750", caption: "Stationery set" },
+        { image: "https://picsum.photos/seed/gg-norte-c/1000/750" },
+        { image: "https://picsum.photos/seed/gg-norte-d/1600/900" }
+      ]
     }
   ],
 

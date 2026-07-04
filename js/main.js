@@ -132,33 +132,40 @@
   /* ============================================================
      Store — "Your Work" posters.
      · save(poster): stores it on THIS device (so the maker sees it)
-       AND, if an email form key is configured, emails it to the site
-       owner via Web3Forms so they can hand-pick it into the curated
-       list later. No database, no server.
+       AND emails it to you at site.email (data/projects.js) via
+       FormSubmit.co — no key, no account, no server.
+       ► FIRST TIME ONLY: formsubmit.co sends you one "activate"
+         email — click its link once and every poster after that
+         lands straight in your inbox.
      · list(): returns the owner's CURATED posters (from the data
        file) first, then the posters made on this device.
      ============================================================ */
   (function () {
-    const cfg = (window.PORTFOLIO && PORTFOLIO.backend) || {};
-    const emailKey = cfg.web3formsKey || "";
+    const ownerEmail = (window.PORTFOLIO && PORTFOLIO.site && PORTFOLIO.site.email) || "";
     const LS_KEY = "gg-posters";
     const curated = (window.PORTFOLIO && PORTFOLIO.curatedPosters) || [];
 
     // email the artwork to the owner (best-effort; never blocks the save)
     async function emailOwner(poster) {
-      if (!emailKey) return;
+      if (!ownerEmail) return;
       try {
-        await fetch("https://api.web3forms.com/submit", {
+        // ready-to-paste curatedPosters entry — copy it from the email
+        // straight into data/projects.js to feature the poster for everyone
+        const entry = {
+          name: poster.name,
+          date: new Date().toISOString().slice(0, 7), // "YYYY-MM"
+          ratio: poster.ratio || "16:9",
+          shapes: poster.shapes,
+        };
+        await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(ownerEmail), {
           method: "POST",
           headers: { "Content-Type": "application/json", Accept: "application/json" },
           body: JSON.stringify({
-            access_key: emailKey,
-            subject: `New poster: "${poster.name}"`,
-            from_name: "Your Work — poster maker",
+            _subject: `New poster: "${poster.name}"`,
+            _template: "table",
+            _captcha: "false",
             name: poster.name,
-            // the shapes JSON is what you paste into curatedPosters to publish it
-            shapes_json: JSON.stringify(poster.shapes),
-            ratio: poster.ratio || "16:9",
+            paste_into_curatedPosters: JSON.stringify(entry) + ",",
             made_at: new Date().toISOString(),
           }),
         });
@@ -183,7 +190,7 @@
     }
 
     GG.Store = {
-      hasEmail: !!emailKey,
+      hasEmail: !!ownerEmail,
       async save(poster) {
         saveLocal(poster);        // maker always sees their own work
         await emailOwner(poster); // owner gets it to hand-pick (if configured)
@@ -488,6 +495,7 @@
       href.startsWith("#") ||
       href.startsWith("http") ||
       href.startsWith("mailto:") ||
+      a.hasAttribute("download") || // file downloads (e.g. the CV) — no page transition
       a.target === "_blank"
     )
       return;

@@ -441,9 +441,9 @@
     nameInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
 
     /* ---------- Idle auto-shuffle ----------
-       If the visitor does nothing for 10s, the shapes and the wordmark
+       If the visitor does nothing for 4s, the shapes and the wordmark
        typefaces reshuffle every 2s until they interact again. */
-    const IDLE_AFTER = 10000, IDLE_EVERY = 2000;
+    const IDLE_AFTER = 4000, IDLE_EVERY = 2000;
     let lastActivity = Date.now();
     const markActivity = () => { lastActivity = Date.now(); };
     ["pointerdown", "pointermove", "keydown", "wheel", "touchstart"].forEach((ev) =>
@@ -507,10 +507,9 @@
       if (!reduced) hoverTimer = setInterval(() => setFont(i, (current[i] + 1) % FONTS.length), 110);
     }
     window.addEventListener("pointermove", (e) => {
-      // not while grabbing or pointing at a shape — dragging across the
-      // wordmark shouldn't flick the letters
-      if ((e.target.closest && e.target.closest(".shape")) ||
-          document.querySelector("#poster .shape.is-grabbing")) { setHover(-1); return; }
+      // hover works even when a shape sits on top of the letters — only
+      // pause while a shape is actively being dragged
+      if (document.querySelector("#poster .shape.is-grabbing")) { setHover(-1); return; }
       const r = word.getBoundingClientRect();
       if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) { setHover(-1); return; }
       setHover(Math.max(0, Math.min(letters.length - 1,
